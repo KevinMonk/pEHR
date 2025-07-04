@@ -4,25 +4,29 @@ This guide demonstrates the key features of the pEHR distributed P2P Electronic 
 
 ## Quick Start
 
+**Important**: Use interactive mode or example scripts for the best experience, as individual CLI commands create separate instances.
+
 1. **Check System Status**
    ```bash
    npm run cli -- status
    ```
 
-2. **Add Users**
-   ```bash
-   npm run cli -- add-user dr-smith
-   npm run cli -- add-user patient-john
-   ```
-
-3. **Interactive Mode**
+2. **Interactive Mode (Recommended)**
    ```bash
    npm run cli -- interactive
    ```
+   Then try commands like: `add-user dr-smith`, `status`, `help`
 
-4. **Run Complete Example**
+3. **Run Complete Example**
    ```bash
    node examples/basic-usage.js
+   node examples/status-demo.js
+   ```
+
+4. **Individual Commands** (for demonstration only)
+   ```bash
+   npm run cli -- add-user dr-smith  # Creates isolated instance
+   npm run cli -- status             # Won't show dr-smith (different instance)
    ```
 
 ## Demo Scenarios

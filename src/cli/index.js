@@ -55,7 +55,9 @@ program
       console.log(chalk.blue('=== pEHR System Status ==='))
       console.log(`${chalk.green('✓')} System initialized: ${status.initialized}`)
       console.log(`${chalk.cyan('→')} Connected peers: ${status.connectedPeers}`)
+      console.log(`${chalk.cyan('→')} Total users: ${status.userCount || 0}`)
       console.log(`${chalk.cyan('→')} Total records: ${status.recordCount}`)
+      console.log(`${chalk.cyan('→')} Total files: ${status.fileCount || 0}`)
       console.log(`${chalk.cyan('→')} Input cores: ${status.inputs}`)
       console.log(`${chalk.gray('→')} Records key: ${status.autobaseKey}`)
       console.log(`${chalk.gray('→')} Files key: ${status.driveKey}`)
@@ -306,7 +308,7 @@ program
         try {
           if (args[0] === 'status') {
             const status = await ehrInstance.getStatus()
-            console.log(`Connected peers: ${status.connectedPeers}, Records: ${status.recordCount}`)
+            console.log(`Users: ${status.userCount || 0}, Records: ${status.recordCount}, Files: ${status.fileCount || 0}, Peers: ${status.connectedPeers}`)
           } else if (args[0] === 'add-user' && args[1]) {
             const user = await ehrInstance.addUser(args[1])
             console.log(chalk.green('✓'), `User ${args[1]} added`)

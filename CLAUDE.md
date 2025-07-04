@@ -38,16 +38,31 @@ The system uses a hybrid P2P architecture combining:
 
 ## Development Commands
 
-Since this is an early-stage project without a formal build system yet, development will primarily involve:
-
-- **Node.js**: Primary runtime environment
-- **Pear Runtime**: P2P application platform
-- **Testing**: Manual testing and prototyping initially
-
-Key dependencies to install:
+### Current Implementation (Simplified)
 ```bash
-npm install hypercore hyperbee hyperdrive autobase corestore hyperswarm
+# Install dependencies
+npm install
+
+# Test CLI interface
+npm run cli -- status
+npm run cli -- interactive
+
+# Run examples and demos
+node examples/basic-usage.js
+node examples/status-demo.js
+
+# Run test suite
+npm test
+
+# Development mode
+npm run dev
 ```
+
+### Testing Notes
+- **Current version uses in-memory storage** - No persistence between CLI commands
+- **Each CLI command creates isolated instance** - Use interactive mode for persistent sessions
+- **True P2P functionality pending** - Hypercore compatibility issues being resolved
+- **See docs/TESTING-GUIDE.md** for comprehensive testing instructions
 
 ## Technical Considerations
 

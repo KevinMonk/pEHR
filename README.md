@@ -25,15 +25,27 @@ A peer-to-peer Electronic Health Record system built on Holepunch's Pear Runtime
 # Install dependencies
 npm install
 
-# Start development server
-npm run dev
+# Check system status
+npm run cli -- status
 
-# Run CLI interface
-npm run cli
+# Try interactive mode (recommended)
+npm run cli -- interactive
+
+# Run complete demo
+node examples/basic-usage.js
 
 # Run tests
 npm test
 ```
+
+## Understanding the Current Implementation
+
+**Important**: The current version uses simplified in-memory storage for demonstration. Each CLI command creates a fresh instance, so data doesn't persist between separate commands. For persistent testing within a session, use:
+
+- **Interactive mode**: `npm run cli -- interactive`
+- **Example scripts**: `node examples/basic-usage.js`
+
+See [TESTING-GUIDE.md](docs/TESTING-GUIDE.md) for detailed testing instructions.
 
 ## Project Structure
 

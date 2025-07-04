@@ -11,7 +11,9 @@
       "Bash(rm:*)",
       "Bash(npm run cli:*)",
       "Bash(git add:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
