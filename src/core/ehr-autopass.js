@@ -196,9 +196,10 @@ export class EHRAutopass extends EventEmitter {
         }
       }
 
-      // Add author information
+      // Add author information and ensure patientId is set
       const enrichedRecord = {
         ...record,
+        patientId: record.patientId || this.options.patientId, // Ensure patientId is set
         timestamp: new Date().toISOString(),
         recordId: record.recordId || `rec_${Date.now()}_${randomBytes(4).toString('hex')}`,
         authorRole: this.options.role,
@@ -288,24 +289,32 @@ export class EHRAutopass extends EventEmitter {
       const records = []
       const prefix = `record:${patientId}:`
       
-      // Get all entries (this is a simplified approach - Autopass may need iteration)
-      const entries = await this.autopass.all()
+      // Use autopass.list() to iterate through all stored data
+      const stream = this.autopass.list()
       
-      for (const [key, value] of entries) {
-        if (key.startsWith(prefix)) {
-          try {
-            const record = JSON.parse(value.toString())
-            records.push(record)
-          } catch (e) {
-            console.warn(`Failed to parse record ${key}:`, e)
+      return new Promise((resolve, reject) => {
+        stream.on('data', ({ key, value }) => {
+          if (key.startsWith(prefix)) {
+            try {
+              const record = JSON.parse(value.toString())
+              records.push(record)
+            } catch (e) {
+              console.warn(`Failed to parse record ${key}:`, e)
+            }
           }
-        }
-      }
-      
-      // Sort by timestamp
-      records.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-      
-      return records
+        })
+        
+        stream.on('end', () => {
+          // Sort by timestamp
+          records.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+          resolve(records)
+        })
+        
+        stream.on('error', (error) => {
+          console.error('Failed to get patient records:', error)
+          resolve([]) // Return empty array on error
+        })
+      })
     } catch (error) {
       console.error('Failed to get patient records:', error)
       return []
@@ -435,5 +444,64 @@ export class EHRAutopass extends EventEmitter {
     }
     
     return await this.addMedicalRecord(record)
+  }
+
+  // Provider invitation functionality
+  async inviteProvider(providerName, speciality) {
+    if (!this.isInitialized) {
+      throw new Error('EHRAutopass not initialized')
+    }
+    
+    if (this.options.role !== 'patient') {
+      throw new Error('Only patients can invite providers')
+    }
+    
+    try {
+      const invite = await this.autopass.createInvite()
+      console.log(`Created invite for ${providerName} (${speciality})`)
+      return invite
+    } catch (error) {
+      console.error('Failed to create provider invite:', error)
+      throw error
+    }
+  }
+
+  // Static method for provider to join using invite
+  static async joinAsProvider(storagePath, providerId, invite) {
+    try {
+      const store = new Corestore(storagePath)
+      const pairing = Autopass.pair(store, invite)
+      const autopass = await pairing.finished()
+      
+      // Create EHRAutopass instance
+      const ehrProvider = new EHRAutopass({
+        storagePath,
+        role: 'provider',
+        providerId
+      })
+      
+      // Set the already-paired autopass instance
+      ehrProvider.store = store
+      ehrProvider.autopass = autopass
+      ehrProvider.isInitialized = true
+      ehrProvider.metadata = {
+        role: 'provider',
+        providerId,
+        createdAt: new Date().toISOString(),
+        key: autopass.key?.toString('hex'),
+        discoveryKey: autopass.discoveryKey?.toString('hex'),
+        writable: autopass.writable
+      }
+      
+      // Set up event listeners
+      ehrProvider.setupEventListeners()
+      
+      console.log(`Provider ${providerId} joined successfully`)
+      return ehrProvider
+      
+    } catch (error) {
+      console.error('Failed to join as provider:', error)
+      throw error
+    }
   }
 }

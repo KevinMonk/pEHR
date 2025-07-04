@@ -8,22 +8,25 @@ This is a distributed peer-to-peer Electronic Health Record (EHR) system built o
 
 ## Architecture
 
-The system is transitioning to use **Autopass** as the core P2P layer:
+**✅ BREAKTHROUGH: TRUE P2P EHR IS NOW WORKING!**
 
-### Current Implementation (Simplified Demo)
+The system successfully uses **Autopass** as the core P2P layer with full functionality:
+
+### ✅ Working P2P Implementation
+- **Autopass 1.0.2**: Secure multi-writer P2P data synchronization ✅
+- **Corestore 6.18.4**: Compatible persistent distributed storage ✅
+- **Invite-based access**: Patient-controlled provider access ✅
+- **Real-time sync**: Changes propagate instantly between peers ✅
+- **OpenEHR compliance**: Full healthcare data standards ✅
+- **Multi-peer scenarios**: Doctor-patient workflows working ✅
+
+### Compatibility Solution
+**Key Fix**: The breakthrough came from using Corestore 6.18.4 (same version Autopass tests use) instead of 7.x. This resolves the "Could not derive discovery from input" error that blocked P2P initialization.
+
+### Legacy Implementation (Simplified Demo)
 - **In-memory storage**: For quick testing and demos
 - **No real P2P**: Isolated instances for concept validation
-- **OpenEHR compliance**: Full healthcare data standards
-
-### New Implementation (True P2P with Autopass)
-- **Autopass**: Secure multi-writer P2P data synchronization
-- **Corestore 7 + RocksDB**: Persistent distributed storage
-- **Invite-based access**: Patient-controlled provider access
-- **Real-time sync**: Changes propagate instantly between peers
-- **openEHR**: Primary data format for structured health records
-- **File support**: Medical images and documents handled natively
-
-See [ARCHITECTURE-UPDATE.md](docs/ARCHITECTURE-UPDATE.md) for migration details.
+- **Still functional**: Available as fallback in `ehr-core-simple.js`
 
 ### Key Components
 
@@ -42,6 +45,32 @@ See [ARCHITECTURE-UPDATE.md](docs/ARCHITECTURE-UPDATE.md) for migration details.
    - libsodium encryption for HIPAA/GDPR compliance
    - Hypercore key pairs for write access control
    - Immutable audit logs via Hypercore's append-only structure
+
+## Working Examples
+
+### ✅ P2P EHR Demo (WORKING!)
+```bash
+# Run the complete P2P healthcare scenario
+node examples/ehr-p2p-demo.js
+```
+**This demonstrates**:
+- Patient creates health records
+- Patient invites doctor via secure P2P invite
+- Doctor joins and accesses patient data
+- Doctor adds assessment, patient sees it instantly
+- All data synchronized in real-time P2P
+
+### ✅ Basic Autopass Test (WORKING!)
+```bash
+# Verify Autopass P2P functionality
+node examples/correct-autopass-test.js
+```
+
+### ✅ Basic Hypercore P2P Test
+```bash
+# Test raw Hypercore replication
+node examples/basic-hypercore.js
+```
 
 ## Development Commands
 
