@@ -8,15 +8,22 @@ This is a distributed peer-to-peer Electronic Health Record (EHR) system built o
 
 ## Architecture
 
-The system uses a hybrid P2P architecture combining:
+The system is transitioning to use **Autopass** as the core P2P layer:
 
-- **Autobase**: Multi-writer protocol for managing structured EHR records with conflict-free collaboration
-- **Hyperdrive**: P2P file system for large files (medical imaging, PDFs) 
-- **Hyperbee**: B-tree key-value store built on Hypercore for efficient querying
-- **HyperDHT + Hyperswarm**: Peer discovery and P2P connections
-- **openEHR**: Primary data format for structured health records with archetype-based modeling
-- **SNOMED CT**: Clinical terminology standardization
-- **DICOM**: Medical imaging storage format
+### Current Implementation (Simplified Demo)
+- **In-memory storage**: For quick testing and demos
+- **No real P2P**: Isolated instances for concept validation
+- **OpenEHR compliance**: Full healthcare data standards
+
+### New Implementation (True P2P with Autopass)
+- **Autopass**: Secure multi-writer P2P data synchronization
+- **Corestore 7 + RocksDB**: Persistent distributed storage
+- **Invite-based access**: Patient-controlled provider access
+- **Real-time sync**: Changes propagate instantly between peers
+- **openEHR**: Primary data format for structured health records
+- **File support**: Medical images and documents handled natively
+
+See [ARCHITECTURE-UPDATE.md](docs/ARCHITECTURE-UPDATE.md) for migration details.
 
 ### Key Components
 

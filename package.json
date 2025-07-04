@@ -26,8 +26,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "autopass": "^1.0.0",
+    "corestore": "^7.0.0",
     "autobase": "^6.5.0",
-    "corestore": "^6.18.0",
     "hyperbee": "^2.24.0",
     "hypercore": "^10.38.0",
     "hyperdrive": "^11.0.0",

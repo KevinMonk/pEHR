@@ -83,6 +83,9 @@ typings/
 # P2P EHR specific
 ehr-store/
 ehr-files/
+demo-ehr-data/
+test-autopass-data/
+*-ehr-data/
 .pear/
 *.pearrc
 
