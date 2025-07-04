@@ -1,0 +1,62 @@
+# pEHR - Distributed P2P Electronic Health Record System
+
+A peer-to-peer Electronic Health Record system built on Holepunch's Pear Runtime that enables decentralized health data management without central servers.
+
+## Features
+
+- **Decentralized Architecture**: No central servers, operates purely peer-to-peer
+- **Multiple Authorship**: Patients, doctors, and hospitals can all contribute to records
+- **Multiple Truths**: Each peer can maintain their own filtered view of health data
+- **Privacy-First**: End-to-end encryption and local data control
+- **Offline Support**: Works without internet connectivity
+- **Standards Compliant**: Uses openEHR for structured health records
+
+## Architecture
+
+- **Autobase**: Multi-writer protocol for conflict-free health record collaboration
+- **Hyperdrive**: P2P file system for medical images and documents
+- **Hyperbee**: Efficient querying of health records using B-tree indexing
+- **HyperDHT/Hyperswarm**: Peer discovery and connection management
+- **openEHR**: Standardized health record format with archetype-based modeling
+
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Run CLI interface
+npm run cli
+
+# Run tests
+npm test
+```
+
+## Project Structure
+
+```
+src/
+├── core/           # Core P2P infrastructure
+├── schemas/        # openEHR record schemas
+├── cli/           # Command-line interface
+└── ui/            # Web interface components
+
+tests/             # Test files
+docs/             # Documentation
+examples/         # Example usage
+```
+
+## Development Status
+
+This project is in early development. Current focus is on building the core P2P infrastructure and basic record management functionality.
+
+## Contributing
+
+This project is currently in the prototype phase. Contributions welcome once the core architecture is stable.
+
+## License
+
+MIT License - see LICENSE file for details

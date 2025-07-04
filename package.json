@@ -1,0 +1,58 @@
+{
+  "name": "pehr",
+  "version": "0.1.0",
+  "description": "A distributed peer-to-peer Electronic Health Record system built on Pear Runtime",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "cli": "node src/cli/index.js",
+    "test": "node --test tests/**/*.test.js",
+    "lint": "eslint src/ --ext .js",
+    "pear": "pear run ."
+  },
+  "keywords": [
+    "ehr",
+    "healthcare",
+    "p2p",
+    "peer-to-peer",
+    "holepunch",
+    "pear",
+    "openehr",
+    "hyperdrive",
+    "autobase"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "autobase": "^6.5.0",
+    "corestore": "^6.18.0",
+    "hyperbee": "^2.24.0",
+    "hypercore": "^10.38.0",
+    "hyperdrive": "^11.0.0",
+    "hyperswarm": "^4.0.0",
+    "sodium-native": "^4.0.0",
+    "commander": "^12.0.0",
+    "chalk": "^5.0.0",
+    "inquirer": "^10.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.0.0",
+    "eslint-plugin-n": "^16.0.0",
+    "eslint-plugin-promise": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/pehr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/username/pehr/issues"
+  },
+  "homepage": "https://github.com/username/pehr#readme"
+}
