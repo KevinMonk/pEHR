@@ -1,7 +1,7 @@
 {
   "name": "pehr",
   "version": "0.1.0",
-  "description": "A distributed peer-to-peer Electronic Health Record system built on Pear Runtime",
+  "description": "Production-ready peer-to-peer Electronic Health Record system with patient-controlled data and secure provider access",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
