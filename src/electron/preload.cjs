@@ -25,6 +25,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     showOpenDialog: (options) => ipcRenderer.invoke('show-open-dialog', options),
     showSaveDialog: (options) => ipcRenderer.invoke('show-save-dialog', options)
   },
+  
+  // System info
+  getHomeDir: () => ipcRenderer.invoke('get-home-dir'),
 
   // Menu event listeners
   onMenuAction: (callback) => {

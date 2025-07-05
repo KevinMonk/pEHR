@@ -44,12 +44,17 @@ function createWindow() {
       contextIsolation: true,
       preload: join(__dirname, 'preload.cjs')
     },
-    titleBarStyle: 'hiddenInset', // macOS style
+    titleBarStyle: 'default', // Show normal title bar for dragging
     show: false // Don't show until ready
   })
 
-  // Load the app
-  mainWindow.loadFile(join(__dirname, 'renderer', 'index.html'))
+  // Load the app with optional fresh flag
+  const htmlPath = join(__dirname, 'renderer', 'index.html')
+  if (process.argv.includes('--fresh')) {
+    mainWindow.loadURL(`file://${htmlPath}?fresh=true`)
+  } else {
+    mainWindow.loadFile(htmlPath)
+  }
   
   if (process.argv.includes('--dev')) {
     mainWindow.webContents.openDevTools()
@@ -120,6 +125,18 @@ function createMenu() {
           accelerator: 'CmdOrCtrl+,',
           click: () => {
             mainWindow.webContents.send('menu-settings')
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Clear Saved Config',
+          click: () => {
+            store.clear()
+            dialog.showMessageBox(mainWindow, {
+              type: 'info',
+              title: 'Config Cleared',
+              message: 'Saved configuration has been cleared. Please restart the app.'
+            })
           }
         },
         { type: 'separator' },
@@ -221,14 +238,26 @@ ipcMain.handle('ehr-initialize', async (event, options) => {
     if (ehrSystem) {
       await ehrSystem.close()
     }
+    
+    // Expand ~ in storage path
+    if (options.storagePath && options.storagePath.startsWith('~')) {
+      options.storagePath = options.storagePath.replace('~', app.getPath('home'))
+    }
 
     const EHRClass = await loadEHRModule()
     ehrSystem = new EHRClass(options)
     await ehrSystem.initialize()
     
+    console.log('EHR initialized successfully:', {
+      role: ehrSystem.options.role,
+      patientId: ehrSystem.options.patientId,
+      providerId: ehrSystem.options.providerId
+    })
+    
     return {
       success: true,
       patientId: ehrSystem.options.patientId,
+      providerId: ehrSystem.options.providerId,
       key: ehrSystem.autopass.key.toString('hex').substring(0, 16) + '...'
     }
   } catch (error) {
@@ -290,10 +319,16 @@ ipcMain.handle('ehr-join-provider', async (event, storagePath, providerId, invit
 
     const EHRClass = await loadEHRModule()
     ehrSystem = await EHRClass.joinAsProvider(storagePath, providerId, invite)
+    
+    console.log('Provider joined successfully:', {
+      providerId: ehrSystem.options.providerId,
+      connectedPatients: ehrSystem.connectedPatients || []
+    })
+    
     return { 
       success: true, 
       providerId: ehrSystem.options.providerId,
-      connectedPatients: [] // Will be populated as data syncs
+      connectedPatients: ehrSystem.connectedPatients || [] // Will be populated as data syncs
     }
   } catch (error) {
     console.error('Join provider error:', error)
@@ -312,13 +347,28 @@ ipcMain.handle('ehr-get-status', async () => {
       }
     }
     
+    // Get actual peer count from autopass - handle different possible structures
+    let peerCount = 0
+    try {
+      if (ehrSystem.autopass?.swarm?.connections?.size) {
+        peerCount = ehrSystem.autopass.swarm.connections.size
+      } else if (ehrSystem.autopass?.peers?.length) {
+        peerCount = ehrSystem.autopass.peers.length  
+      } else if (ehrSystem.autopass?.connections?.length) {
+        peerCount = ehrSystem.autopass.connections.length
+      }
+    } catch (err) {
+      console.log('Could not determine peer count:', err.message)
+    }
+    
     return {
       success: true,
       initialized: true,
-      peers: ehrSystem.autopass.peers.length,
+      peers: peerCount,
       role: ehrSystem.options.role,
       patientId: ehrSystem.options.patientId,
-      providerId: ehrSystem.options.providerId
+      providerId: ehrSystem.options.providerId,
+      key: ehrSystem.autopass.key.toString('hex').substring(0, 16) + '...'
     }
   } catch (error) {
     console.error('Get status error:', error)
@@ -349,6 +399,11 @@ ipcMain.handle('show-open-dialog', async (event, options) => {
 ipcMain.handle('show-save-dialog', async (event, options) => {
   const result = await dialog.showSaveDialog(mainWindow, options)
   return result
+})
+
+// Get home directory
+ipcMain.handle('get-home-dir', () => {
+  return app.getPath('home')
 })
 
 // Log for debugging

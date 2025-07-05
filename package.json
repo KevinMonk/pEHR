@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Production-ready peer-to-peer Electronic Health Record system with patient-controlled data and secure provider access",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
@@ -12,6 +13,7 @@
     "pear": "pear run .",
     "electron": "electron src/electron/main.cjs",
     "electron-dev": "electron src/electron/main.cjs --dev",
+    "electron-fresh": "electron src/electron/main.cjs --fresh",
     "build": "electron-builder",
     "build-mac": "electron-builder --mac",
     "build-win": "electron-builder --win",

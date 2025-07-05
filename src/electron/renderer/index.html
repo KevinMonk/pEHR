@@ -188,9 +188,18 @@
                 <div id="records-view" class="view active">
                     <div class="view-header">
                         <h2>Medical Records</h2>
-                        <button class="btn btn-primary" id="add-record-btn">
-                            ➕ Add Record
-                        </button>
+                        <div class="header-controls">
+                            <div id="patient-selector" class="patient-selector" style="display: none;">
+                                <input type="text" id="patient-id-input" placeholder="Enter patient ID">
+                                <button class="btn btn-sm" id="load-patient-records">Load</button>
+                            </div>
+                            <button class="btn btn-secondary btn-sm" id="refresh-records-btn">
+                                🔄 Refresh
+                            </button>
+                            <button class="btn btn-primary" id="add-record-btn">
+                                ➕ Add Record
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="records-container">

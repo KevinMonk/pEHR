@@ -15,11 +15,19 @@ async function initializeApp() {
     // Set up event listeners
     setupEventListeners()
     
-    // Check if already configured
-    const savedConfig = await window.electronAPI.settings.get('userConfig')
+    // Check if we should use saved config
+    // Note: renderer process doesn't have access to process.argv, so we'll check URL params
+    const urlParams = new URLSearchParams(window.location.search)
+    const isFreshMode = urlParams.has('fresh')
+    const savedConfig = !isFreshMode ? await window.electronAPI.settings.get('userConfig') : null
     
     if (savedConfig) {
         try {
+            // Add timestamp to make storage path unique for each instance
+            if (savedConfig.storagePath && !savedConfig.storagePath.includes('-instance-')) {
+                savedConfig.storagePath = savedConfig.storagePath + '-instance-' + Date.now()
+            }
+            
             // Try to initialize with saved config
             const result = await window.electronAPI.ehr.initialize(savedConfig)
             
@@ -39,7 +47,11 @@ async function initializeApp() {
         }
     } else {
         // First time setup
-        setTimeout(() => showScreen('setup'), 2000)
+        console.log('No saved config, showing setup screen...')
+        setTimeout(() => {
+            console.log('Transitioning to setup screen')
+            showScreen('setup')
+        }, 2000)
     }
 }
 
@@ -110,6 +122,20 @@ function setupEventListeners() {
     
     // Status updates
     setInterval(updateStatus, 5000) // Update every 5 seconds
+    
+    // Patient selector for providers
+    document.getElementById('load-patient-records')?.addEventListener('click', () => {
+        const patientId = document.getElementById('patient-id-input').value.trim()
+        if (patientId) {
+            loadRecordsForPatient(patientId)
+        }
+    })
+    
+    // Refresh records button
+    document.getElementById('refresh-records-btn')?.addEventListener('click', () => {
+        console.log('Manual refresh clicked')
+        loadRecords()
+    })
 }
 
 function setupModalControls() {
@@ -157,8 +183,10 @@ function setupModalControls() {
 }
 
 async function setDefaultStoragePath(type) {
-    const homeDir = await window.electronAPI.settings.get('homeDirectory') || '~'
-    const defaultPath = `${homeDir}/pEHR-${type}-data`
+    // Get the actual home directory from Electron
+    const homeDir = await window.electronAPI.getHomeDir()
+    const timestamp = Date.now()
+    const defaultPath = `${homeDir}/pEHR-${type}-${timestamp}`
     
     if (type === 'patient') {
         document.getElementById('storage-path').value = defaultPath
@@ -234,13 +262,25 @@ async function handleProviderSetup(e) {
         const result = await window.electronAPI.ehr.joinProvider(storagePath, providerId, inviteCode)
         
         if (result.success) {
+            // Extract patient ID from invite code (this is a hack for demo purposes)
+            // In production, this would come from the invite metadata
+            let connectedPatientId = null
+            try {
+                // The invite contains the patient info - we'll parse it later
+                // For now, we'll set it in the network view when we connect
+                console.log('Provider setup result:', result)
+            } catch (e) {
+                console.log('Could not extract patient ID from invite')
+            }
+            
             // Save config
             const config = {
                 storagePath,
                 role: 'provider',
                 providerId,
                 name: providerName,
-                inviteCode
+                inviteCode,
+                connectedPatientId: connectedPatientId
             }
             await window.electronAPI.settings.set('userConfig', config)
             
@@ -288,12 +328,18 @@ async function handleAddRecord(e) {
         const result = await window.electronAPI.ehr.addRecord(record)
         
         if (result.success) {
+            console.log('Record added successfully:', result)
             hideModal()
-            loadRecords() // Refresh records display
+            
+            // Wait a moment for the record to be written
+            setTimeout(() => {
+                loadRecords() // Refresh records display
+            }, 500)
             
             // Clear form
             document.getElementById('add-record-form').reset()
         } else {
+            console.error('Failed to add record:', result.error)
             alert(`Failed to add record: ${result.error}`)
         }
     } catch (error) {
@@ -335,6 +381,8 @@ async function handleInviteProvider(e) {
 }
 
 function showScreen(screenId) {
+    console.log(`Showing screen: ${screenId}`)
+    
     // Hide all screens
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active')
@@ -345,6 +393,9 @@ function showScreen(screenId) {
     if (targetScreen) {
         targetScreen.classList.add('active')
         currentScreen = screenId
+        console.log(`Screen ${screenId} is now active`)
+    } else {
+        console.error(`Screen ${screenId} not found!`)
     }
 }
 
@@ -367,6 +418,7 @@ function showView(viewId) {
         
         // Load view-specific data
         if (viewId === 'records') {
+            console.log('Switching to records view - loading records...')
             loadRecords()
         } else if (viewId === 'network') {
             updateNetworkStatus()
@@ -406,6 +458,11 @@ async function updateDashboard() {
     document.getElementById('user-role').textContent = userRole === 'patient' ? 'Patient' : 'Provider'
     document.getElementById('user-role').className = `role-badge ${userRole}`
     
+    // Show patient selector for providers
+    if (userRole === 'provider') {
+        document.getElementById('patient-selector').style.display = 'flex'
+    }
+    
     // Load initial data
     if (currentView === 'records') {
         loadRecords()
@@ -419,9 +476,32 @@ async function loadRecords() {
     
     try {
         const config = await window.electronAPI.settings.get('userConfig')
-        const patientId = config.patientId || config.providerId // Provider might access patient records
+        const status = await window.electronAPI.ehr.getStatus()
+        
+        console.log('Load records - Config:', config)
+        console.log('Load records - Status:', status)
+        
+        // Use the patient ID from the EHR system status first, then fall back to config
+        let patientId = status.patientId || config.patientId
+        
+        // If we're a provider, we need to get the connected patient's ID
+        if (config.role === 'provider' && !patientId) {
+            // For providers, we need to get the connected patient's ID
+            console.log('Provider mode - looking for connected patient')
+            patientId = status.connectedPatientId || config.connectedPatientId
+        }
+        
+        console.log('Final patient ID for records:', patientId)
+        
+        if (!patientId) {
+            console.log('No patient ID available')
+            const container = document.getElementById('records-list')
+            container.innerHTML = '<p>No patient connected. Please join a patient network first.</p>'
+            return
+        }
         
         const result = await window.electronAPI.ehr.getRecords(patientId)
+        console.log('Records result for patient', patientId, ':', result)
         
         if (result.success) {
             displayRecords(result.records)
@@ -430,6 +510,25 @@ async function loadRecords() {
         }
     } catch (error) {
         console.error('Load records error:', error)
+    }
+}
+
+async function loadRecordsForPatient(patientId) {
+    console.log('Loading records for specific patient:', patientId)
+    
+    try {
+        const result = await window.electronAPI.ehr.getRecords(patientId)
+        console.log('Records result for', patientId, ':', result)
+        
+        if (result.success) {
+            displayRecords(result.records)
+        } else {
+            console.error('Failed to load records for patient:', patientId, result.error)
+            const container = document.getElementById('records-list')
+            container.innerHTML = `<p>Failed to load records for patient ${patientId}: ${result.error}</p>`
+        }
+    } catch (error) {
+        console.error('Error loading records for patient:', patientId, error)
     }
 }
 
@@ -509,11 +608,11 @@ async function updateStatus() {
 
 function updateNetworkStatus(status = null) {
     if (status) {
-        document.getElementById('network-status').textContent = status.peers > 0 ? 'Connected' : 'Offline'
+        document.getElementById('network-status').textContent = status.peers > 0 ? 'Connected' : (status.initialized ? 'Ready' : 'Offline')
         document.getElementById('network-peers').textContent = status.peers
         document.getElementById('network-role').textContent = status.role || 'Unknown'
         document.getElementById('identity-patient-id').textContent = status.patientId || status.providerId || 'Unknown'
-        // Note: We don't show the full key for security reasons
+        document.getElementById('identity-key').textContent = status.key || 'Unknown'
     }
 }
 
