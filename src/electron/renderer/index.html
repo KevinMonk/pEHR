@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pEHR - Peer-to-Peer Electronic Health Records</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading" class="screen active">
+            <div class="loading-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="80" height="80" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Medical icons in circular arrangement -->
+                            <circle cx="256" cy="256" r="240" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                            
+                            <!-- Stethoscope -->
+                            <path d="M256 100c-20 0-36 16-36 36v80c0 44 36 80 80 80s80-36 80-80v-80c0-20-16-36-36-36" stroke="white" stroke-width="8" fill="none"/>
+                            <circle cx="300" cy="340" r="20" fill="white"/>
+                            <circle cx="212" cy="340" r="20" fill="white"/>
+                            
+                            <!-- Heart -->
+                            <path d="M180 180c-20-20-52-20-72 0s-20 52 0 72l72 72 72-72c20-20 20-52 0-72s-52-20-72 0z" fill="rgba(255,255,255,0.9)"/>
+                            
+                            <!-- Medical Cross -->
+                            <rect x="320" y="120" width="60" height="20" rx="10" fill="white"/>
+                            <rect x="340" y="100" width="20" height="60" rx="10" fill="white"/>
+                            
+                            <!-- Pills -->
+                            <ellipse cx="150" cy="350" rx="15" ry="25" fill="rgba(255,255,255,0.8)"/>
+                            <ellipse cx="380" cy="200" rx="12" ry="20" fill="rgba(255,255,255,0.7)"/>
+                            
+                            <!-- Medical clipboard -->
+                            <rect x="100" y="120" width="40" height="60" rx="5" fill="white"/>
+                            <line x1="110" y1="135" x2="130" y2="135" stroke="#4a5568" stroke-width="2"/>
+                            <line x1="110" y1="145" x2="130" y2="145" stroke="#4a5568" stroke-width="2"/>
+                            <line x1="110" y1="155" x2="125" y2="155" stroke="#4a5568" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h1>pEHR</h1>
+                    <p>Peer-to-Peer Electronic Health Records</p>
+                </div>
+                <div class="loading-spinner"></div>
+                <p>Initializing secure P2P connection...</p>
+            </div>
+        </div>
+
+        <!-- Setup Screen -->
+        <div id="setup" class="screen">
+            <div class="setup-content">
+                <h2>Welcome to pEHR</h2>
+                <p>Set up your secure peer-to-peer health record system</p>
+                
+                <div class="setup-options">
+                    <div class="option-card" id="patient-setup">
+                        <h3>👤 Patient</h3>
+                        <p>Create and manage your personal health records</p>
+                        <button class="btn btn-primary">Set Up as Patient</button>
+                    </div>
+                    
+                    <div class="option-card" id="provider-setup">
+                        <h3>👨‍⚕️ Healthcare Provider</h3>
+                        <p>Join a patient's health network with an invitation</p>
+                        <button class="btn btn-secondary">Join as Provider</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Setup Form -->
+        <div id="patient-form" class="screen">
+            <div class="form-content">
+                <h2>Patient Setup</h2>
+                <form id="patient-setup-form">
+                    <div class="form-group">
+                        <label for="patient-name">Full Name</label>
+                        <input type="text" id="patient-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient-dob">Date of Birth</label>
+                        <input type="date" id="patient-dob" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient-id">Patient ID (optional)</label>
+                        <input type="text" id="patient-id" placeholder="Auto-generated if empty">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="storage-path">Storage Location</label>
+                        <div class="path-input">
+                            <input type="text" id="storage-path" readonly>
+                            <button type="button" id="browse-storage">Browse</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="back-to-setup">Back</button>
+                        <button type="submit" class="btn btn-primary">Create Patient Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Provider Setup Form -->
+        <div id="provider-form" class="screen">
+            <div class="form-content">
+                <h2>Provider Setup</h2>
+                <form id="provider-setup-form">
+                    <div class="form-group">
+                        <label for="provider-name">Provider Name</label>
+                        <input type="text" id="provider-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="provider-id">Provider ID</label>
+                        <input type="text" id="provider-id" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="invite-code">Invitation Code</label>
+                        <textarea id="invite-code" rows="3" placeholder="Paste the invitation code from the patient" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="provider-storage-path">Storage Location</label>
+                        <div class="path-input">
+                            <input type="text" id="provider-storage-path" readonly>
+                            <button type="button" id="browse-provider-storage">Browse</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="back-to-setup-provider">Back</button>
+                        <button type="submit" class="btn btn-primary">Join Network</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboard" class="screen">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">
+                        <svg width="24" height="24" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="256" cy="256" r="200" fill="rgba(52,211,153,0.2)" stroke="rgba(52,211,153,0.4)" stroke-width="2"/>
+                            <path d="M256 100c-20 0-36 16-36 36v80c0 44 36 80 80 80s80-36 80-80v-80c0-20-16-36-36-36" stroke="rgb(52,211,153)" stroke-width="6" fill="none"/>
+                            <circle cx="300" cy="320" r="12" fill="rgb(52,211,153)"/>
+                            <circle cx="212" cy="320" r="12" fill="rgb(52,211,153)"/>
+                            <rect x="320" y="120" width="40" height="12" rx="6" fill="rgb(52,211,153)"/>
+                            <rect x="332" y="108" width="12" height="40" rx="6" fill="rgb(52,211,153)"/>
+                        </svg>
+                        <span>pEHR</span>
+                    </div>
+                    <div class="user-info">
+                        <span id="user-name">Loading...</span>
+                        <span id="user-role" class="role-badge">Patient</span>
+                    </div>
+                </div>
+                
+                <nav class="sidebar-nav">
+                    <button class="nav-item active" data-view="records">
+                        📋 Medical Records
+                    </button>
+                    <button class="nav-item" data-view="network">
+                        🔗 Network
+                    </button>
+                    <button class="nav-item" data-view="settings">
+                        ⚙️ Settings
+                    </button>
+                </nav>
+                
+                <div class="sidebar-footer">
+                    <div class="connection-status">
+                        <div class="status-indicator" id="connection-status"></div>
+                        <span id="peer-count">0 peers</span>
+                    </div>
+                </div>
+            </aside>
+            
+            <main class="main-content">
+                <!-- Medical Records View -->
+                <div id="records-view" class="view active">
+                    <div class="view-header">
+                        <h2>Medical Records</h2>
+                        <button class="btn btn-primary" id="add-record-btn">
+                            ➕ Add Record
+                        </button>
+                    </div>
+                    
+                    <div class="records-container">
+                        <div id="records-list" class="records-list">
+                            <!-- Records will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Network View -->
+                <div id="network-view" class="view">
+                    <div class="view-header">
+                        <h2>Network Status</h2>
+                        <button class="btn btn-primary" id="invite-provider-btn">
+                            📧 Invite Provider
+                        </button>
+                    </div>
+                    
+                    <div class="network-info">
+                        <div class="info-card">
+                            <h3>Connection Status</h3>
+                            <div class="status-details">
+                                <div class="status-row">
+                                    <span>Status:</span>
+                                    <span id="network-status" class="status-value">Connecting...</span>
+                                </div>
+                                <div class="status-row">
+                                    <span>Connected Peers:</span>
+                                    <span id="network-peers" class="status-value">0</span>
+                                </div>
+                                <div class="status-row">
+                                    <span>Role:</span>
+                                    <span id="network-role" class="status-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h3>Your Identity</h3>
+                            <div class="identity-details">
+                                <div class="identity-row">
+                                    <span>Patient ID:</span>
+                                    <span id="identity-patient-id" class="identity-value">-</span>
+                                </div>
+                                <div class="identity-row">
+                                    <span>Network Key:</span>
+                                    <span id="identity-key" class="identity-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings View -->
+                <div id="settings-view" class="view">
+                    <div class="view-header">
+                        <h2>Settings</h2>
+                    </div>
+                    
+                    <div class="settings-container">
+                        <div class="settings-section">
+                            <h3>Application Settings</h3>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="auto-sync">
+                                    Auto-sync with connected peers
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="notifications">
+                                    Show notifications for new records
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3>Privacy & Security</h3>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="encryption" checked disabled>
+                                    End-to-end encryption (always enabled)
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="audit-logging" checked disabled>
+                                    Audit logging (always enabled)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay">
+        <!-- Add Record Modal -->
+        <div id="add-record-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Medical Record</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-record-form">
+                        <div class="form-group">
+                            <label for="record-type">Record Type</label>
+                            <select id="record-type" required>
+                                <option value="">Select type</option>
+                                <option value="vital_signs">Vital Signs</option>
+                                <option value="medical_history">Medical History</option>
+                                <option value="symptoms">Symptoms</option>
+                                <option value="assessment">Assessment</option>
+                                <option value="medication">Medication</option>
+                                <option value="lab_results">Lab Results</option>
+                                <option value="imaging">Imaging</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="record-data">Record Data (JSON)</label>
+                            <textarea id="record-data" rows="8" placeholder='{"key": "value"}' required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="record-notes">Notes</label>
+                            <textarea id="record-notes" rows="3" placeholder="Additional notes..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-record">Cancel</button>
+                    <button type="submit" form="add-record-form" class="btn btn-primary">Save Record</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Invite Provider Modal -->
+        <div id="invite-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Invite Healthcare Provider</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="invite-form">
+                        <div class="form-group">
+                            <label for="provider-name-invite">Provider Name</label>
+                            <input type="text" id="provider-name-invite" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="provider-role">Role</label>
+                            <select id="provider-role" required>
+                                <option value="">Select role</option>
+                                <option value="primary-care">Primary Care</option>
+                                <option value="specialist">Specialist</option>
+                                <option value="hospital">Hospital</option>
+                                <option value="nurse">Nurse</option>
+                                <option value="therapist">Therapist</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </form>
+                    
+                    <div id="invite-result" class="invite-result" style="display: none;">
+                        <h4>Invitation Code Generated</h4>
+                        <p>Share this code with your healthcare provider:</p>
+                        <div class="invite-code">
+                            <textarea id="generated-invite" readonly></textarea>
+                            <button type="button" class="btn btn-sm" id="copy-invite">Copy</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-invite">Cancel</button>
+                    <button type="submit" form="invite-form" class="btn btn-primary" id="generate-invite">Generate Invitation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

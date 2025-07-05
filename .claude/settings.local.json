@@ -20,7 +20,11 @@
       "Bash(npm view:*)",
       "Bash(npm install:*)",
       "Bash(grep:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(chmod:*)",
+      "WebFetch(domain:docs.pears.com)",
+      "Bash(pkill:*)",
+      "Bash(npm run:*)"
     ],
     "deny": []
   }
