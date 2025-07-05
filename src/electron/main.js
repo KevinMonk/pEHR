@@ -309,7 +309,7 @@ ipcMain.handle('ehr-get-status', async () => {
     return {
       success: true,
       initialized: true,
-      peers: ehrSystem.autopass.peers.length,
+      peers: ehrSystem.autopass?.swarm?.connections?.size || 0,
       role: ehrSystem.options.role,
       patientId: ehrSystem.options.patientId,
       providerId: ehrSystem.options.providerId
