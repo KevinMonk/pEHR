@@ -3,7 +3,7 @@
  * Uses in-memory storage until Hypercore ecosystem compatibility is resolved
  */
 
-import { randomBytes } from 'crypto'
+import { randomBytes } from "hypercore-crypto";
 import { OpenEHRSchemas } from '../schemas/openehr-schemas.js'
 
 export class EHRCoreSimple {

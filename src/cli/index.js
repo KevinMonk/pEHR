@@ -7,13 +7,18 @@
 
 import { Command } from 'commander'
 import chalk from 'chalk'
-import inquirer from 'inquirer'
 import { EHRCoreSimple as EHRCore } from '../core/ehr-core-simple.js'
 import { EHRRecordFactory } from '../schemas/openehr-schemas.js'
-import { createRequire } from 'module'
 
-const require = createRequire(import.meta.url)
-const pkg = require('../../package.json')
+import pkg from '../../package.json'
+
+// Note: We can use a lot of `bare-` imports to fill in the Node API or just use these simplified versions
+// import { CommandPear } from "./commandpear.js";
+// import chalk from "./chalkpear.js";
+
+// Note: Unsupported dependencies
+// import inquirer from "inquirer";
+import { pearprompt as inquirer } from './pear-prompt.js'
 
 const program = new Command()
 
@@ -65,7 +70,7 @@ program
       await closeEHR()
     } catch (error) {
       console.error(chalk.red('Error getting status:'), error.message)
-      process.exit(1)
+      Pear.exit(1)
     }
   })
 
@@ -84,7 +89,7 @@ program
       await closeEHR()
     } catch (error) {
       console.error(chalk.red('Error adding user:'), error.message)
-      process.exit(1)
+      Pear.exit(1)
     }
   })
 
@@ -210,7 +215,7 @@ program
       await closeEHR()
     } catch (error) {
       console.error(chalk.red('Error adding record:'), error.message)
-      process.exit(1)
+      Pear.exit(1)
     }
   })
 
@@ -240,7 +245,7 @@ program
       await closeEHR()
     } catch (error) {
       console.error(chalk.red('Error listing records:'), error.message)
-      process.exit(1)
+      Pear.exit(1)
     }
   })
 
@@ -263,7 +268,7 @@ program
       await closeEHR()
     } catch (error) {
       console.error(chalk.red('Error getting record:'), error.message)
-      process.exit(1)
+      Pear.exit(1)
     }
   })
 
@@ -326,20 +331,15 @@ program
       await closeEHR()
     } catch (error) {
       console.error(chalk.red('Error in interactive mode:'), error.message)
-      process.exit(1)
+      Pear.exit(1)
     }
   })
 
 // Handle cleanup
-process.on('SIGINT', async () => {
+Pear.teardown(async () => {
   console.log(chalk.yellow('\nShutting down...'))
   await closeEHR()
-  process.exit(0)
+  Pear.exit(0)
 })
 
-process.on('SIGTERM', async () => {
-  await closeEHR()
-  process.exit(0)
-})
-
-program.parse()
+program.parse(Pear.config.args, { from: 'user' })
