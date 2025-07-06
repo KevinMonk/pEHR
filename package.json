@@ -4,10 +4,14 @@
   "description": "Production-ready peer-to-peer Electronic Health Record system with patient-controlled data and secure provider access",
   "main": "src/index.js",
   "type": "module",
+  "pear": {
+    "name": "pehr",
+    "type": "terminal"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "cli": "node src/cli/index.js",
+    "cli": "pear run src/cli/index.js",
     "test": "node --test tests/**/*.test.js",
     "lint": "eslint src/ --ext .js",
     "pear": "pear run .",
@@ -35,16 +39,31 @@
   "dependencies": {
     "autobase": "^7.13.3",
     "autopass": "^2.2.0",
+    "bare-events": "^2.5.4",
+    "bare-fs": "^4.1.6",
+    "bare-os": "^3.6.1",
+    "bare-path": "^3.0.0",
+    "bare-process": "^4.2.1",
+    "bare-readline": "^1.0.9",
+    "bare-subprocess": "^5.1.0",
+    "bare-tty": "^5.0.2",
     "chalk": "^5.0.0",
+    "child_process": "npm:bare-node-child-process",
     "commander": "^12.0.0",
     "corestore": "^7.4.5",
     "electron-store": "^10.1.0",
+    "events": "npm:bare-node-events",
+    "fs": "npm:bare-node-fs",
     "hyperbee": "^2.24.2",
     "hypercore": "^11.10.0",
     "hyperdrive": "^11.0.0",
     "hyperswarm": "^4.11.7",
     "inquirer": "^10.0.0",
-    "sodium-native": "^4.0.0"
+    "os": "npm:bare-node-os",
+    "path": "npm:bare-node-path",
+    "process": "npm:bare-node-process",
+    "sodium-native": "^4.0.0",
+    "tty": "npm:bare-node-tty"
   },
   "devDependencies": {
     "electron": "^37.2.0",
